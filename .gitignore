@@ -1,0 +1,13 @@
+data/raw/
+data/source/extracted/
+dist/
+__pycache__/
+*.py[cod]
+.claude/
+_prev_*/
+*.log
+Thumbs.db
+desktop.ini
+scripts/_*.py
+# original upload; the committed copy is data/source/tanintharyi_flood_9_2026.rar
+/တနင်္သာရီ flood 9_2026.rar

@@ -1,0 +1,1477 @@
+<title>Tanintharyi Flood Screening</title>
+<meta name="description" content="Interactive dashboard for the September 2026 floods in five townships of Tanintharyi Region, Myanmar: GSM's village–stream screening of 655 MIMU villages set against the villages Dawei Watch reported flooded on 27 September, with MIMU boundaries, roads, schools and health facilities." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Myanmar:wght@400;500;600&display=swap" />
+
+<style>
+/*__LEAFLET_CSS__*/
+</style>
+
+<style>
+/* ================================================================ TOKENS */
+:root {
+  color-scheme: light;
+
+  /* neutrals: grey with a mangrove-green bias */
+  --plane:        #eceee8;
+  --surface:      #fbfbf8;
+  --surface-2:    #f2f4ee;
+  --surface-sunk: #e4e8e0;
+  --ink:          #152019;
+  --ink-2:        #48584e;
+  --ink-3:        #76837a;
+  --rule:         #d8ddd4;
+  --rule-strong:  #b8c1b4;
+  --ring:         rgba(21, 32, 25, .10);
+
+  /* accent: mangrove green */
+  --accent:       #1f6b50;
+  --accent-soft:  #dcebe2;
+  --accent-ink:   #155039;
+
+  /* distance to mapped stream: one-hue ordinal ramp (blue = water) */
+  --d-near:  #1c5cab;
+  --d-mid:   #5598e7;
+  --d-far:   #a9c9ef;
+  --d-out:   #b9beb4;
+  --d-none:  #8c9389;
+
+  /* monitoring priority: one-hue ordinal ramp (orange) */
+  --p-imm:   #b8430f;
+  --p-enh:   #e98545;
+  --p-mon:   #f3bd83;
+
+  /* reported hazard: categorical */
+  --h-flood: #c3284e;
+  --h-slide: #6c3ea8;
+  --h-road:  #0f7f8c;
+
+  /* basins: categorical slots 1-3 */
+  --b-dawei: #2a78d6;
+  --b-tni:   #1baf7a;
+  --b-coast: #eda100;
+
+  /* map */
+  --sea:        #d3e1e4;
+  --land:       #f8f9f5;
+  --land-ctx:   #e7eae3;
+  --foreign:    #dfe2dc;
+  --stream:     #3b7cc4;
+  --river:      #7fb0de;
+  --lowland:    #e2c26c;
+  --road-main:  #c0553a;
+  --road-sec:   #d99a52;
+  --road-ter:   #aeb6ab;
+  --rail:       #5b6660;
+  --admin:      #5f6f65;
+  --vt-line:    #cad2c6;
+  --vt-hit:     #f1d2d6;
+  --school:     #6d5bd0;
+  --hospital:   #1f6b50;
+  --cross:      #8a3f1a;
+  --halo:       #fbfbf8;
+
+  --grid:  #e2e6de;
+  --axis:  #bfc7bb;
+
+  --shadow: 0 1px 2px rgba(21,32,25,.06), 0 6px 18px rgba(21,32,25,.06);
+
+  --display: "Bricolage Grotesque", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --sans: "Source Sans 3", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+  --mm:   "Noto Sans Myanmar", "Myanmar Text", "Padauk", "Pyidaungsu", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --plane:        #0d1210;
+    --surface:      #151c18;
+    --surface-2:    #1b241f;
+    --surface-sunk: #101613;
+    --ink:          #edf2ee;
+    --ink-2:        #a7b6ac;
+    --ink-3:        #7c8b81;
+    --rule:         #25302a;
+    --rule-strong:  #36443c;
+    --ring:         rgba(237, 242, 238, .12);
+    --accent:       #4fbf92;
+    --accent-soft:  #16342a;
+    --accent-ink:   #8fdcbc;
+    --d-near:  #6da7ec;
+    --d-mid:   #2a78d6;
+    --d-far:   #1c4a80;
+    --d-out:   #4a524c;
+    --d-none:  #6f786f;
+    --p-imm:   #f07a3c;
+    --p-enh:   #c5692b;
+    --p-mon:   #8a5a2b;
+    --h-flood: #e8587a;
+    --h-slide: #a585e6;
+    --h-road:  #2fb3c2;
+    --b-dawei: #3987e5;
+    --b-tni:   #199e70;
+    --b-coast: #c98500;
+    --sea:        #0f1f24;
+    --land:       #19211d;
+    --land-ctx:   #141a17;
+    --foreign:    #111714;
+    --stream:     #5c9be0;
+    --river:      #2d5f8f;
+    --lowland:    #8a7331;
+    --road-main:  #d8765c;
+    --road-sec:   #b8864c;
+    --road-ter:   #3c4741;
+    --rail:       #8c999c;
+    --admin:      #8a9a90;
+    --vt-line:    #2a352f;
+    --vt-hit:     #4a2430;
+    --school:     #a498ee;
+    --hospital:   #4fbf92;
+    --cross:      #e0925f;
+    --halo:       #101613;
+    --grid:  #222b26;
+    --axis:  #35423b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane:        #0d1210;
+  --surface:      #151c18;
+  --surface-2:    #1b241f;
+  --surface-sunk: #101613;
+  --ink:          #edf2ee;
+  --ink-2:        #a7b6ac;
+  --ink-3:        #7c8b81;
+  --rule:         #25302a;
+  --rule-strong:  #36443c;
+  --ring:         rgba(237, 242, 238, .12);
+  --accent:       #4fbf92;
+  --accent-soft:  #16342a;
+  --accent-ink:   #8fdcbc;
+  --d-near:  #6da7ec;
+  --d-mid:   #2a78d6;
+  --d-far:   #1c4a80;
+  --d-out:   #4a524c;
+  --d-none:  #6f786f;
+  --p-imm:   #f07a3c;
+  --p-enh:   #c5692b;
+  --p-mon:   #8a5a2b;
+  --h-flood: #e8587a;
+  --h-slide: #a585e6;
+  --h-road:  #2fb3c2;
+  --b-dawei: #3987e5;
+  --b-tni:   #199e70;
+  --b-coast: #c98500;
+  --sea:        #0f1f24;
+  --land:       #19211d;
+  --land-ctx:   #141a17;
+  --foreign:    #111714;
+  --stream:     #5c9be0;
+  --river:      #2d5f8f;
+  --lowland:    #8a7331;
+  --road-main:  #d8765c;
+  --road-sec:   #b8864c;
+  --road-ter:   #3c4741;
+  --rail:       #8c999c;
+  --admin:      #8a9a90;
+  --vt-line:    #2a352f;
+  --vt-hit:     #4a2430;
+  --school:     #a498ee;
+  --hospital:   #4fbf92;
+  --cross:      #e0925f;
+  --halo:       #101613;
+  --grid:  #222b26;
+  --axis:  #35423b;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.3);
+}
+
+/* ================================================================ BASE */
+html { background: var(--plane); }
+body {
+  background: var(--plane); color: var(--ink);
+  font: 400 15px/1.5 var(--sans);
+  padding-inline: clamp(16px, 3vw, 36px); padding-block: 0 40px;
+}
+.mm { font-family: var(--mm); line-height: 1.8; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -.01em; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1480px; margin: 0 auto; }
+.eyebrow { font: 600 12px/1.3 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+
+/* the Leaflet canvas renderers must never be squeezed by an img/canvas reset */
+.leaflet-container canvas, .leaflet-container svg { max-width: none !important; }
+
+/* ================================================================ HEADER */
+.top {
+  display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: end; justify-content: space-between;
+  padding-block: 28px 18px;
+}
+.top h1 { font-size: clamp(30px, 4.2vw, 50px); font-weight: 750; line-height: 1.02; font-variation-settings: "opsz" 96; }
+.top .mmtitle { font-family: var(--mm); font-size: 17px; color: var(--ink-2); margin-top: 6px; }
+.lede { max-width: 70ch; color: var(--ink-2); margin: 10px 0 0; }
+.top-tools { display: flex; gap: 8px; align-items: center; }
+.btn {
+  border: 1px solid var(--rule-strong); background: var(--surface); border-radius: 8px;
+  padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn:hover { background: var(--surface-2); }
+
+/* KPI strip */
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: var(--rule);
+  border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.kpi { background: var(--surface); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; }
+.kpi .v { font: 750 32px/1 var(--display); font-variation-settings: "opsz" 60; display: flex; align-items: baseline; gap: 6px; }
+.kpi .v small { font: 600 14px var(--sans); color: var(--ink-3); }
+.kpi .l { font-size: 13.5px; color: var(--ink-2); line-height: 1.35; }
+.kpi .sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.kpi.alert .v { color: var(--h-flood); }
+@media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi .v { font-size: 26px; } }
+
+/* findings */
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 16px; }
+.finding { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
+.finding h3 { font-size: 16.5px; font-weight: 700; line-height: 1.25; margin-bottom: 6px; }
+.finding p { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+.finding .tag { font: 600 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; display: block; }
+
+/* ================================================================ WORK AREA */
+.work { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 12px; margin-top: 20px; }
+.mapbox { position: relative; border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; background: var(--sea); min-height: 560px; height: min(78vh, 860px); }
+#map { position: absolute; inset: 0; background: var(--sea); font-family: var(--sans); }
+.side { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; display: flex; flex-direction: column; min-height: 0; height: min(78vh, 860px); min-height: 560px; }
+@media (max-width: 980px) {
+  .work { grid-template-columns: 1fr; }
+  .mapbox { height: 70vh; min-height: 420px; }
+  .side { height: auto; min-height: 0; max-height: none; }
+}
+
+.maptools { position: absolute; top: 10px; left: 50px; right: 10px; z-index: 800; display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none; }
+.maptools > * { pointer-events: auto; }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+.seg button { border: 0; background: none; padding: 6px 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-2); }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+:root[data-theme="dark"] .seg button[aria-pressed="true"] { color: #0d1210; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button[aria-pressed="true"] { color: #0d1210; } }
+.seg .lbl { padding: 6px 8px 6px 10px; font-size: 11.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; display: grid; place-items: center; }
+
+/* legend */
+.legend {
+  position: absolute; left: 10px; bottom: 26px; z-index: 800; max-width: min(330px, calc(100% - 20px));
+  background: color-mix(in srgb, var(--surface) 94%, transparent); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 10px 12px; box-shadow: var(--shadow); font-size: 12.5px;
+}
+.legend h4 { margin: 8px 0 4px; font: 600 11px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); }
+.legend h4:first-of-type { margin-top: 4px; }
+.lg-row { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.lg-i { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); white-space: nowrap; }
+.lg-sw { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.legend-toggle { border: 0; background: none; padding: 0; font: 700 12px var(--sans); cursor: pointer; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.legend-toggle::after { content: "–"; color: var(--ink-3); }
+.legend.collapsed .legend-toggle::after { content: "+"; }
+.legend.collapsed > :not(.legend-toggle) { display: none; }
+
+/* map labels & tooltips */
+.lbl-ts { font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); text-shadow: 0 0 3px var(--halo), 0 0 3px var(--halo), 0 0 6px var(--halo); white-space: nowrap; pointer-events: none; }
+.lbl-ts span { display: block; font: 500 11px var(--mm); letter-spacing: 0; text-transform: none; }
+.lbl-town { font: 600 11.5px var(--sans); color: var(--ink); text-shadow: 0 0 3px var(--halo), 0 0 3px var(--halo); white-space: nowrap; pointer-events: none; }
+.lbl-town::before { content: ""; display: inline-block; width: 7px; height: 7px; border: 1.5px solid var(--ink); background: var(--halo); border-radius: 1px; margin-right: 4px; vertical-align: -1px; }
+.leaflet-tooltip.tt { background: var(--surface); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 8px; box-shadow: var(--shadow); font: 13px/1.4 var(--sans); padding: 6px 9px; }
+.leaflet-tooltip.tt::before { display: none; }
+.tt b { font-weight: 700; }
+.tt .mm { font-size: 12.5px; }
+.tt .sub { color: var(--ink-3); font-size: 12px; }
+.leaflet-container { font: 13px var(--sans); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--surface); color: var(--ink); border-bottom-color: var(--rule); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--surface) 85%, transparent) !important; color: var(--ink-3); font-size: 10.5px; }
+.leaflet-control-attribution a { color: var(--ink-2); }
+
+/* side panel */
+.tabs { display: flex; border-bottom: 1px solid var(--rule); padding: 0 8px; flex: none; }
+.tabs button { border: 0; background: none; padding: 12px 12px 10px; font-weight: 700; font-size: 14px; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.pane { overflow: auto; flex: 1; min-height: 0; }
+.pane-pad { padding: 12px 14px; }
+@media (max-width: 980px) { .pane { max-height: 70vh; } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--rule-strong); background: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--ink-2); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+.ctl-label { font: 600 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 12px 0 6px; }
+.ctl-label:first-child { margin-top: 0; }
+.search { width: 100%; border: 1px solid var(--rule-strong); background: var(--surface); border-radius: 8px; padding: 7px 10px; font: inherit; color: var(--ink); }
+.count { font-size: 12.5px; color: var(--ink-3); margin: 10px 0 4px; }
+
+.vlist { list-style: none; margin: 0; padding: 0; }
+.vlist li + li { border-top: 1px solid var(--rule); }
+.vrow { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; text-align: left; border: 0; background: none; padding: 7px 4px; cursor: pointer; border-radius: 6px; }
+.vrow:hover { background: var(--surface-2); }
+.vrow[aria-current="true"] { background: var(--accent-soft); }
+.vrow .nm { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vrow .nm .mm { font-weight: 400; font-size: 13px; color: var(--ink-2); margin-left: 4px; }
+.vrow .meta { font-size: 12px; color: var(--ink-3); }
+.vrow .d { font: 500 12px var(--mono); color: var(--ink-2); text-align: right; }
+
+.detail { border-bottom: 1px solid var(--rule); padding: 12px 14px 14px; background: var(--surface-2); }
+.detail h3 { font-size: 20px; font-weight: 700; }
+.detail .mm { font-size: 15px; color: var(--ink-2); }
+.detail .where { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px 3px 8px; font-size: 12.5px; font-weight: 700; border: 1px solid var(--rule-strong); background: var(--surface); }
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 14px; font-size: 13.5px; margin: 0; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+.detail .close { float: right; border: 0; background: none; color: var(--ink-3); cursor: pointer; font-size: 13px; font-weight: 600; }
+
+fieldset { border: 0; margin: 0 0 14px; padding: 0; }
+legend { font: 600 11px var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; padding: 0; }
+.chk { display: grid; grid-template-columns: 18px 22px 1fr; gap: 2px 8px; align-items: center; padding: 5px 2px; cursor: pointer; font-size: 14px; }
+.chk input { margin: 0; accent-color: var(--accent); }
+.chk .src { grid-column: 3; font-size: 12px; color: var(--ink-3); line-height: 1.3; }
+.chk.dis { opacity: .55; cursor: not-allowed; }
+
+/* ================================================================ SECTIONS */
+section.block { margin-top: 36px; }
+.block-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px 24px; margin-bottom: 14px; }
+.block-head h2 { font-size: clamp(22px, 2.4vw, 28px); font-weight: 720; }
+.block-head p { margin: 4px 0 0; color: var(--ink-2); max-width: 75ch; }
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px 14px; grid-column: span 6; min-width: 0; }
+.card.w4 { grid-column: span 4; }
+.card.w5 { grid-column: span 5; }
+.card.w7 { grid-column: span 7; }
+.card.w8 { grid-column: span 8; }
+.card.w12 { grid-column: span 12; }
+@media (max-width: 1000px) { .card, .card.w4, .card.w5, .card.w7, .card.w8 { grid-column: span 12; } }
+.card h3 { font-size: 16.5px; font-weight: 700; line-height: 1.25; }
+.card .sub { color: var(--ink-3); font-size: 13px; margin: 3px 0 10px; }
+.card .note { color: var(--ink-3); font-size: 12.5px; margin: 8px 0 0; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; overflow: visible; }
+.chart text { font-family: var(--sans); }
+.ax { fill: var(--ink-3); font-size: 11.5px; }
+.ax-l { fill: var(--ink-2); font-size: 12.5px; }
+.val { fill: var(--ink); font-size: 12px; font-weight: 600; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; }
+.tip { position: absolute; pointer-events: none; z-index: 10; background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; box-shadow: var(--shadow); padding: 6px 9px; font-size: 12.5px; line-height: 1.4; opacity: 0; transition: opacity .12s; max-width: 260px; }
+.tip.on { opacity: 1; }
+.tip b { font-weight: 700; }
+
+.tbl-wrap { overflow-x: auto; }
+table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table.t th { text-align: left; font: 600 11px var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); padding: 6px 8px; border-bottom: 1px solid var(--rule-strong); white-space: nowrap; }
+table.t td { padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; }
+table.t tr.go { cursor: pointer; }
+table.t tr.go:hover td { background: var(--surface-2); }
+table.t .mm { font-size: 13px; }
+.badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.muted { color: var(--ink-3); }
+
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.method .card { grid-column: auto; }
+.method ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+.method li + li { margin-top: 4px; }
+footer { margin-top: 28px; color: var(--ink-3); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 14px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Tanintharyi Region, Myanmar · 26–27 September 2026 · 5 townships</div>
+      <h1>Tanintharyi Flood Screening</h1>
+      <div class="mmtitle">တနင်္သာရီတိုင်း ရေကြီးမှု — ကျေးရွာ၊ ချောင်းကွန်ရက်နှင့် သတင်းပါရွာများ</div>
+      <p class="lede">Every MIMU village in Dawei, Launglon, Thayetchaung, Palaw and Tanintharyi townships, screened by the Geographical Society of Myanmar (GSM) for distance to mapped streams, set against the villages <b>Dawei Watch</b> reported flooded or hit by landslides on 27 September. Distances are map filters, not flood limits.</p>
+    </div>
+    <div class="top-tools"><button class="btn" id="themeBtn" type="button">Theme: system</button></div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+  <div class="findings" id="findings"></div>
+
+  <div class="work" id="work">
+    <div class="mapbox">
+      <div id="map" role="region" aria-label="Map of screened and reported villages"></div>
+      <div class="maptools">
+        <div class="seg" role="group" aria-label="Colour villages by">
+          <span class="lbl">Colour</span>
+          <button type="button" data-mode="dist" aria-pressed="true">Stream distance</button>
+          <button type="button" data-mode="prio" aria-pressed="false">Priority</button>
+          <button type="button" data-mode="basin" aria-pressed="false">Basin</button>
+        </div>
+        <div class="seg" role="group" aria-label="Zoom to">
+          <button type="button" id="zAll">All 5</button>
+          <button type="button" id="zNorth">Dawei District</button>
+          <button type="button" id="zSouth">Palaw · Tanintharyi</button>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <aside class="side">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-v" aria-selected="true" aria-controls="pane-v">Villages</button>
+        <button type="button" role="tab" id="tab-l" aria-selected="false" aria-controls="pane-l">Map layers</button>
+      </div>
+      <div class="pane" id="pane-v" role="tabpanel" aria-labelledby="tab-v">
+        <div id="detail"></div>
+        <div class="pane-pad">
+          <div class="ctl-label">Township</div>
+          <div class="chips" id="tsChips"></div>
+          <div class="ctl-label">Show</div>
+          <div class="chips" id="showChips"></div>
+          <div class="ctl-label"><label for="q">Find a village</label></div>
+          <input class="search" id="q" type="search" placeholder="English or Myanmar name" autocomplete="off" />
+          <div class="count" id="vcount"></div>
+          <ul class="vlist" id="vlist"></ul>
+        </div>
+      </div>
+      <div class="pane" id="pane-l" role="tabpanel" aria-labelledby="tab-l" hidden>
+        <div class="pane-pad" id="layers"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="block" id="compare">
+    <div class="block-head">
+      <div>
+        <h2>Did the screen point to where floods were reported?</h2>
+        <p>The screening ranks villages by straight-line distance to HydroRIVERS streams and a visual elevation class. The 27 September reports are a separate, independent record. Comparing them shows what the screen can and cannot see.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card w7">
+        <h3>Reported villages vs Immediate Field Check villages, by township</h3>
+        <div class="sub">Count of villages. Reports: Dawei Watch, 27 Sep 2026. Priority: GSM 197-village elevation screen.</div>
+        <div class="chart-legend" id="lgPair"></div>
+        <div class="chart" id="cPair"></div>
+      </div>
+      <div class="card w5">
+        <h3>Share of villages reported, by stream-distance class</h3>
+        <div class="sub">Reported villages ÷ all screened villages in the class</div>
+        <div class="chart" id="cRate"></div>
+        <p class="note" id="rateNote"></p>
+      </div>
+      <div class="card w12">
+        <h3>Distance from each village to the nearest mapped stream</h3>
+        <div class="sub">650 screened villages (dots) and 37 reported villages (triangles), log scale. Dashed lines mark GSM's 200 m and 500 m filters.</div>
+        <div class="chart-legend" id="lgStrip"></div>
+        <div class="chart" id="cStrip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="screen">
+    <div class="block-head">
+      <div>
+        <h2>The screening, township by township</h2>
+        <p>655 of the 659 MIMU village points in the five townships were screened. Five Palaw villages fall outside the supplied basin polygons and were left unscreened rather than guessed.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Distance to nearest mapped stream</h3>
+        <div class="sub">Villages per township, by GSM distance class</div>
+        <div class="chart-legend" id="lgDist"></div>
+        <div class="chart" id="cDist"></div>
+      </div>
+      <div class="card">
+        <h3>Monitoring priority of the 197 villages within 200 m</h3>
+        <div class="sub">Graded by GSM from visual DEM elevation class and stream order</div>
+        <div class="chart-legend" id="lgPrio"></div>
+        <div class="chart" id="cPrio"></div>
+      </div>
+      <div class="card">
+        <h3>Which basin each village drains to</h3>
+        <div class="sub">HydroBASINS membership, villages per township</div>
+        <div class="chart-legend" id="lgBasin"></div>
+        <div class="chart" id="cBasin"></div>
+        <p class="note">39 Dawei Township villages east of the divide drain to the Tanintharyi River, not the Dawei River. Basin and township boundaries do not coincide.</p>
+      </div>
+      <div class="card">
+        <h3>Township summary</h3>
+        <div class="sub">MIMU geography joined to the screening. Click a row to zoom.</div>
+        <div class="tbl-wrap"><table class="t" id="tTs"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="reports">
+    <div class="block-head">
+      <div>
+        <h2>The 38 reported villages</h2>
+        <p>Named in Dawei Watch's field report of 27 September 2026 and plotted by GSM. 37 match a MIMU village Pcode exactly by Myanmar name and position; Shin Moke Tee (ရှင်မုတ္ထီး) is a village tract near Dawei, not a MIMU village point. Click a row to show it on the map.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card w4">
+        <h3>What was reported</h3>
+        <div class="sub">Villages, by hazard named in the report</div>
+        <div class="chart" id="cHaz"></div>
+      </div>
+      <div class="card w8">
+        <div class="tbl-wrap" style="max-height:520px;overflow:auto"><table class="t" id="tRep"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="exposure">
+    <div class="block-head">
+      <div>
+        <h2>Schools, health facilities and roads in the way</h2>
+        <p>MIMU facility and road layers measured against the same mapped streams and against the reported villages. Proximity is a reason to check, not evidence of damage.</p>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card w5">
+        <h3>Road–stream crossings</h3>
+        <div class="sub">MIMU roads crossing a mapped stream of Strahler order 2 or higher, per township. These are the culverts, fords and bridges most likely to be overtopped.</div>
+        <div class="chart-legend" id="lgCross"></div>
+        <div class="chart" id="cCross"></div>
+        <p class="note" id="crossNote"></p>
+      </div>
+      <div class="card w7">
+        <h3>Facilities near a reported village or a mapped stream</h3>
+        <div class="sub" id="facSub"></div>
+        <div class="tbl-wrap" style="max-height:430px;overflow:auto"><table class="t" id="tFac"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method">
+    <div class="block-head"><div><h2>Method, sources and limits</h2></div></div>
+    <div class="method" id="methodBox"></div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script type="application/json" id="d-geo">/*__GEO__*/</script>
+<script type="application/json" id="d-an">/*__ANALYSIS__*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(() => {
+"use strict";
+const GEO = JSON.parse(document.getElementById("d-geo").textContent);
+const AN  = JSON.parse(document.getElementById("d-an").textContent);
+
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-US");
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const SVGNS = "http://www.w3.org/2000/svg";
+const T = AN.total;
+const TS_ORDER = ["Dawei", "Launglon", "Thayetchaung", "Palaw", "Tanintharyi"];
+const TS = AN.townships;
+
+const CLS = [
+  { k: "0-200 m", label: "0–200 m", v: "--d-near" },
+  { k: "200-500 m", label: "200–500 m", v: "--d-mid" },
+  { k: ">500 m", label: "Over 500 m", v: "--d-far" },
+  { k: "Not screened - outside basin coverage", label: "Outside basin coverage", v: "--d-out" },
+];
+const CLS_BY = Object.fromEntries(CLS.map(c => [c.k, c]));
+CLS_BY["Not in supplied screening"] = { k: "Not in supplied screening", label: "Not in the screening", v: "--d-none" };
+const PRIO = [
+  { k: "Immediate Field Check", label: "Immediate field check", v: "--p-imm" },
+  { k: "Enhanced Monitoring", label: "Enhanced monitoring", v: "--p-enh" },
+  { k: "Monitoring", label: "Monitoring", v: "--p-mon" },
+];
+const PRIO_BY = Object.fromEntries(PRIO.map(p => [p.k, p]));
+const BASIN = [
+  { k: "Dawei main basin", label: "Dawei River basin", v: "--b-dawei" },
+  { k: "Tanintharyi main basin", label: "Tanintharyi River basin", v: "--b-tni" },
+  { k: "Other / coastal basin", label: "Coastal basins", v: "--b-coast" },
+];
+const BASIN_BY = Object.fromEntries(BASIN.map(b => [b.k, b]));
+const HAZ = [
+  { k: "Flood / landslide", label: "Flood and landslide", v: "--h-slide" },
+  { k: "Flood", label: "Flood", v: "--h-flood" },
+  { k: "Flood / road overtopped", label: "Flood, road overtopped", v: "--h-road" },
+];
+const HAZ_BY = Object.fromEntries(HAZ.map(h => [h.k, h]));
+const TS_MM = Object.fromEntries(TS_ORDER.map(t => [t, TS[t].ts_mm]));
+
+/* ------------------------------------------------------------------ theme */
+const root = document.documentElement;
+const THEMES = ["system", "light", "dark"];
+let themeIx = 0;
+try { const t = localStorage.getItem("tni-theme"); if (THEMES.includes(t)) themeIx = THEMES.indexOf(t); } catch (e) {}
+function applyTheme() {
+  const t = THEMES[themeIx];
+  if (t === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
+  $("#themeBtn").textContent = "Theme: " + t;
+}
+$("#themeBtn").addEventListener("click", () => {
+  themeIx = (themeIx + 1) % 3; applyTheme();
+  try { localStorage.setItem("tni-theme", THEMES[themeIx]); } catch (e) {}
+});
+applyTheme();
+const onTheme = [];
+new MutationObserver(() => onTheme.forEach(f => f())).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => onTheme.forEach(f => f()));
+
+/* ------------------------------------------------------------------ items (villages + the one non-MIMU report) */
+const ITEMS = GEO.villages.features.map(f => {
+  const p = f.properties;
+  return {
+    id: p.pcode, en: p.VILLAGE, mm: p.VLG_MMR, ts: p.TS, vt: p.VT, lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1],
+    dist: p.dist, cls: p.cls, basin: p.basin, prio: p.priority, elev: p.elev, ord: p.strahler, gsm: !!p.gsm,
+    edge: !!p.edge, hz: p.hz || null, low5: !!p.low5, dem: p.dem_conf,
+  };
+});
+AN.reported.filter(r => !r.pcode).forEach(r => ITEMS.push({
+  id: "r-" + r.mm, en: r.vt || r.mm, mm: r.mm, ts: r.ts, vt: r.vt, lon: r.lon, lat: r.lat, dist: null, own: r.stream_m,
+  cls: "Not in supplied screening", basin: null, prio: null, hz: r.hazard, low5: !!r.low5, nonMimu: true,
+}));
+const REP_BY = Object.fromEntries(AN.reported.map(r => [r.pcode || "r-" + r.mm, r]));
+const BY_ID = Object.fromEntries(ITEMS.map(v => [v.id, v]));
+const PRIO_RANK = { "Immediate Field Check": 0, "Enhanced Monitoring": 1, "Monitoring": 2 };
+
+/* ------------------------------------------------------------------ glyphs */
+function triSvg(fillVar, size = 14) {
+  const s = size, h = s * 0.9;
+  return `<svg width="${s + 4}" height="${s + 4}" viewBox="0 0 ${s + 4} ${s + 4}" aria-hidden="true"><path d="M${(s + 4) / 2} 2 L${s + 2} ${h + 2} L2 ${h + 2} Z" style="fill:var(${fillVar});stroke:var(--halo);stroke-width:1.6;stroke-linejoin:round"/></svg>`;
+}
+const dotSvg = (fillVar, r = 5, ring) => `<svg width="${2 * r + 4}" height="${2 * r + 4}" aria-hidden="true"><circle cx="${r + 2}" cy="${r + 2}" r="${r}" style="fill:var(${fillVar});stroke:${ring ? "var(--ink)" : "var(--halo)"};stroke-width:${ring ? 1.4 : 1}"/></svg>`;
+const hospSvg = (s = 14) => `<svg width="${s}" height="${s}" viewBox="0 0 14 14" aria-hidden="true"><rect x="0.5" y="0.5" width="13" height="13" rx="3" style="fill:var(--hospital);stroke:var(--halo)"/><path d="M7 3.5v7M3.5 7h7" style="stroke:#fff;stroke-width:2.2"/></svg>`;
+
+/* ================================================================== KPIs & findings */
+(function kpis() {
+  const nearRep = AN.reported.filter(r => r.cls === "0-200 m").length;
+  const screenedRep = AN.reported.filter(r => r.cls !== "Not in screening").length;
+  const immRep = AN.reported.filter(r => r.priority === "Immediate Field Check").length;
+  const tiles = [
+    { v: fmt(T.screened), s: `of ${fmt(T.mimu_villages)}`, l: "MIMU villages screened against mapped streams and basins" },
+    { v: fmt(T.cls["0-200 m"]), sw: "--d-near", l: "villages within 200 m of a mapped stream" },
+    { v: fmt(T.priority["Immediate Field Check"]), sw: "--p-imm", l: "flagged for an immediate field check (GSM priority list)" },
+    { v: fmt(T.reported), alert: true, l: "villages reported flooded or hit by landslides, 27 Sep (Dawei Watch)" },
+    { v: fmt(nearRep), s: `of ${screenedRep}`, l: "screened reported villages that lie within 200 m of a stream" },
+    { v: fmt(immRep), s: `of ${T.priority["Immediate Field Check"]}`, l: "Immediate Field Check villages that appear in the reports" },
+  ];
+  $("#kpis").innerHTML = tiles.map(t => `<div class="kpi ${t.alert ? "alert" : ""}">
+    <div class="v num">${t.v}${t.s ? `<small>${t.s}</small>` : ""}</div>
+    <div class="l">${t.sw ? `<span class="sw" style="background:var(${t.sw});margin-right:6px"></span>` : ""}${t.l}</div></div>`).join("");
+
+  const r = AN.rate;
+  const lowAll = ITEMS.filter(v => v.low5 && !v.nonMimu).length;
+  const lowRep = ITEMS.filter(v => v.low5 && v.hz && !v.nonMimu).length;
+  const othersRep = AN.reported.filter(x => x.pcode).length - lowRep;
+  const othersAll = T.mimu_villages - lowAll;
+  const dw = ["Launglon", "Thayetchaung"].reduce((a, t) => a + TS[t].reported, 0);
+  const tImm = TS.Tanintharyi.priority["Immediate Field Check"];
+  const coastRep = AN.reported.filter(x => x.basin === "Other / coastal basin").length;
+  const f = [
+    { tag: "Where the reports are", h: `${dw} of ${T.reported} reported villages are in Launglon and Thayetchaung`,
+      p: `Launglon alone has ${TS.Launglon.reported}, every one a combined flood and landslide report. ${coastRep} of the ${screenedRep} screened reported villages drain to small coastal basins, not to the Dawei or Tanintharyi rivers.` },
+    { tag: "Screen vs reports", h: `Stream distance did not single out the reported villages`,
+      p: `${r["0-200 m"].pct}% of villages within 200 m of a stream were reported, against ${r["200-500 m"].pct}% at 200–500 m and ${r[">500 m"].pct}% beyond 500 m. Reported villages sit a median ${fmt(T.reported_stream_median)} m from a mapped stream; all screened villages, ${fmt(T.median_dist)} m.` },
+    { tag: "Priority list", h: `None of the ${T.priority["Immediate Field Check"]} Immediate Field Check villages was reported`,
+      p: `${tImm} of them are in Tanintharyi Township, where the 27 September report named no village. A missing report is not proof a village stayed dry: Dawei Watch is based in Dawei, far to the north.` },
+    { tag: "Low-lying land", h: `Land below 5 m is a sharper signal than stream distance`,
+      p: `${lowRep} of the ${lowAll} villages on MIMU's below-5 m land were reported (${Math.round(100 * lowRep / lowAll)}%), against ${Math.round(100 * othersRep / othersAll)}% of all other villages. The numbers are small, and ${TS.Launglon.villages_low5} of those ${lowAll} villages are in Launglon, where ${TS.Launglon.lowland_pct}% of the land is below 5 m.` },
+    { tag: "Services", h: `${T.schools_near_rep} schools and ${T.hospitals_near_rep} hospitals lie within 1 km of a reported village`,
+      p: `Across the five townships, ${T.schools_near_stream} of ${T.schools} MIMU schools are within 200 m of a mapped stream. Roads cross mapped streams at ${T.crossings} places; ${T.crossings - T.crossings_unbridged} of them have a MIMU-mapped bridge within 300 m.` },
+  ];
+  $("#findings").innerHTML = f.map(x => `<div class="finding"><span class="tag">${x.tag}</span><h3>${x.h}</h3><p>${x.p}</p></div>`).join("");
+})();
+
+/* ================================================================== MAP */
+const map = L.map("map", { preferCanvas: true, zoomSnap: 0.25, zoomDelta: 0.5, minZoom: 6.5, maxZoom: 16, attributionControl: true });
+map.attributionControl.setPrefix(false);
+map.attributionControl.addAttribution('Geography: <a href="https://themimu.info" target="_blank" rel="noopener">MIMU</a> · Screening: GSM · Streams: HydroSHEDS · Reports: Dawei Watch');
+const B_ALL = L.geoJSON(GEO.townships).getBounds();
+const B_NORTH = L.latLngBounds([[13.2, 97.95], [14.35, 98.75]]);
+const B_SOUTH = L.latLngBounds([[11.3, 98.25], [13.25, 99.7]]);
+map.fitBounds(B_ALL, { padding: [8, 8] });
+$("#zAll").addEventListener("click", () => map.flyToBounds(B_ALL, { padding: [8, 8], duration: 0.8 }));
+$("#zNorth").addEventListener("click", () => map.flyToBounds(B_NORTH, { padding: [8, 8], duration: 0.8 }));
+$("#zSouth").addEventListener("click", () => map.flyToBounds(B_SOUTH, { padding: [8, 8], duration: 0.8 }));
+
+const panes = [["pLand", 200], ["pBasin", 205], ["pLow", 210], ["pVT", 220], ["pWard", 225], ["pWater", 230],
+  ["pRoad", 240], ["pAdmin", 250], ["pX", 410], ["pVill", 420], ["pFac", 430], ["pSel", 640], ["pRep", 650]];
+panes.forEach(([n, z]) => { map.createPane(n).style.zIndex = z; });
+const canvas = {};
+panes.forEach(([n]) => { canvas[n] = L.canvas({ pane: n, padding: 0.3 }); });
+
+const layers = {};
+function addLayer(key, layer, on, paint) {
+  layers[key] = { layer, on, paint };
+  if (on) layer.addTo(map);
+}
+function paintAll() { Object.values(layers).forEach(l => l.paint && l.paint()); }
+onTheme.push(() => requestAnimationFrame(paintAll));
+const ttOpt = { className: "tt", direction: "top", offset: [0, -6], sticky: false };
+
+// land
+const lThai = L.geoJSON(GEO.thailand, { pane: "pLand", renderer: canvas.pLand, interactive: false });
+const lCtx = L.geoJSON(GEO.context, { pane: "pLand", renderer: canvas.pLand, interactive: false });
+const lTs = L.geoJSON(GEO.townships, { pane: "pLand", renderer: canvas.pLand, interactive: false });
+let tileOn = false;
+addLayer("land", L.layerGroup([lThai, lCtx, lTs]), true, () => {
+  const op = tileOn ? 0 : 1;
+  lThai.setStyle({ stroke: false, fillColor: css("--foreign"), fillOpacity: op });
+  lCtx.setStyle({ color: css("--rule-strong"), weight: 0.8, fillColor: css("--land-ctx"), fillOpacity: op, opacity: tileOn ? 0.6 : 1 });
+  lTs.setStyle({ stroke: false, fillColor: css("--land"), fillOpacity: op });
+});
+
+// basins
+const lBasin = L.geoJSON(GEO.basins, {
+  pane: "pBasin", renderer: canvas.pBasin,
+  onEachFeature: (f, l) => {
+    const p = f.properties, b = BASIN_BY[p.group];
+    l.bindTooltip(`<b>${esc(b ? b.label : p.group)}</b><br><span class="sub">HydroBASINS ${p.hybas} · ${fmt(Math.round(p.sub_km2))} km² sub-basin</span><br>${p.villages} villages · ${p.near} within 200 m · ${p.rep} reported`, { ...ttOpt, sticky: true });
+  },
+});
+addLayer("basins", lBasin, true, () => lBasin.eachLayer(l => {
+  const b = BASIN_BY[l.feature.properties.group];
+  l.setStyle({ color: css(b.v), weight: 1, opacity: 0.55, fillColor: css(b.v), fillOpacity: tileOn ? 0.05 : 0.07 });
+}));
+
+// land below 5 m
+const lLow = L.geoJSON(GEO.lowland, { pane: "pLow", renderer: canvas.pLow, interactive: false });
+addLayer("lowland", lLow, true, () => lLow.setStyle({ stroke: false, fillColor: css("--lowland"), fillOpacity: 0.5 }));
+
+// village tracts
+const lVT = L.geoJSON(GEO.vt, {
+  pane: "pVT", renderer: canvas.pVT,
+  onEachFeature: (f, l) => {
+    const p = f.properties;
+    l.bindTooltip(`<b>${esc(p.VT)}</b> <span class="mm">${esc(p.VT_MMR || "")}</span><br><span class="sub">Village tract, ${esc(p.TS)}</span><br>${p.villages} villages · ${p.near} within 200 m · ${p.imm} immediate · ${p.rep} reported`, { ...ttOpt, sticky: true });
+  },
+});
+addLayer("vt", lVT, true, () => lVT.eachLayer(l => {
+  const hit = l.feature.properties.rep > 0;
+  l.setStyle({ color: css("--vt-line"), weight: 0.7, fillColor: css("--vt-hit"), fillOpacity: hit ? (tileOn ? 0.35 : 0.75) : 0, opacity: tileOn ? 0.5 : 1 });
+}));
+
+// wards
+const lWard = L.geoJSON(GEO.wards, {
+  pane: "pWard", renderer: canvas.pWard,
+  onEachFeature: (f, l) => l.bindTooltip(`<b>${esc(f.properties.WARD)}</b> <span class="mm">${esc(f.properties.WARD_MMR || "")}</span><br><span class="sub">${esc(f.properties.TOWN)}</span>`, { ...ttOpt, sticky: true }),
+});
+addLayer("wards", lWard, false, () => lWard.setStyle({ color: css("--admin"), weight: 0.6, fillColor: css("--admin"), fillOpacity: 0.08 }));
+
+// streams: split by Strahler order so small reaches only draw when zoomed in
+const W_ORD = { 1: 0.5, 2: 0.8, 3: 1.1, 4: 1.5, 5: 2.1, 6: 2.8, 7: 3.6, 8: 4.4 };
+const streamTip = (f, l) => { const p = f.properties; l.bindTooltip(`<b>Mapped stream</b> · Strahler order ${p.ord}<br><span class="sub">HydroRIVERS ${p.id} · mean flow ${p.q} m³/s · ${fmt(Math.round(p.up))} km² upstream</span>`, { ...ttOpt, sticky: true }); };
+const lStrMajor = L.geoJSON({ type: "FeatureCollection", features: GEO.streams.features.filter(f => f.properties.ord >= 3) }, { pane: "pWater", renderer: canvas.pWater, onEachFeature: streamTip });
+const lStrMinor = L.geoJSON({ type: "FeatureCollection", features: GEO.streams.features.filter(f => f.properties.ord < 3) }, { pane: "pWater", renderer: canvas.pWater, onEachFeature: streamTip });
+const lStreams = L.layerGroup([lStrMajor]);
+addLayer("streams", lStreams, true, () => {
+  [lStrMajor, lStrMinor].forEach(g => g.eachLayer(l => l.setStyle({ color: css("--stream"), weight: W_ORD[l.feature.properties.ord] || 1, opacity: tileOn ? 0.95 : 0.8 })));
+});
+
+// MIMU rivers (named)
+const lRiv = L.geoJSON(GEO.rivers, { pane: "pWater", renderer: canvas.pWater, interactive: false });
+addLayer("rivers", lRiv, false, () => lRiv.setStyle({ color: css("--river"), weight: 1.4, opacity: 0.9, fillColor: css("--river"), fillOpacity: 0.5 }));
+
+// roads + railway
+const RD = { Main: ["--road-main", 2.6], Secondary: ["--road-sec", 1.8], Tertiary: ["--road-ter", 1.1] };
+const lRoad = L.geoJSON(GEO.roads, { pane: "pRoad", renderer: canvas.pRoad, interactive: false });
+const lRail = L.geoJSON(GEO.railway, { pane: "pRoad", renderer: canvas.pRoad, interactive: false });
+addLayer("roads", L.layerGroup([lRoad, lRail]), true, () => {
+  lRoad.eachLayer(l => { const [c, w] = RD[l.feature.properties.Road_Type] || RD.Tertiary; l.setStyle({ color: css(c), weight: w, opacity: 0.95 }); });
+  lRail.setStyle({ color: css("--rail"), weight: 1.6, dashArray: "5 4", opacity: 0.9 });
+});
+
+// admin lines
+const lTsLine = L.geoJSON(GEO.townships, { pane: "pAdmin", renderer: canvas.pAdmin, interactive: false });
+const lDist = L.geoJSON(GEO.districts, { pane: "pAdmin", renderer: canvas.pAdmin, interactive: false });
+addLayer("admin", L.layerGroup([lTsLine, lDist]), true, () => {
+  lTsLine.setStyle({ color: css("--admin"), weight: 1.3, dashArray: "6 4", fill: false, opacity: 0.9 });
+  lDist.setStyle({ color: css("--admin"), weight: 2.4, fill: false, opacity: 0.85 });
+});
+const tsLabels = L.layerGroup(GEO.townships.features.map(f => L.marker([f.properties.ly, f.properties.lx], {
+  interactive: false, pane: "pAdmin",
+  icon: L.divIcon({ className: "", html: `<div class="lbl-ts" style="transform:translate(-50%,-50%)">${esc(f.properties.TS)}<span>${esc(f.properties.TS_MMR)}</span></div>`, iconSize: [0, 0] }),
+})));
+tsLabels.addTo(map);
+
+// road-stream crossings
+const lCross = L.geoJSON(GEO.crossings, {
+  pane: "pX", renderer: canvas.pX,
+  pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 3.5 }),
+  onEachFeature: (f, l) => { const p = f.properties; l.bindTooltip(`<b>${esc(p.road)} road crosses a stream</b><br><span class="sub">Strahler order ${p.ord} · mean flow ${p.q} m³/s · ${esc(p.TS || "")}</span><br>${p.bridged ? "MIMU bridge within 300 m" : "No MIMU-mapped bridge within 300 m"}`, ttOpt); },
+});
+addLayer("crossings", lCross, false, () => lCross.eachLayer(l => l.setStyle({ color: css("--halo"), weight: 1, fillColor: css("--cross"), fillOpacity: 1 })));
+
+const lBridge = L.geoJSON(GEO.bridges, {
+  pane: "pX", renderer: canvas.pX,
+  pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 4 }),
+  onEachFeature: (f, l) => { const p = f.properties; l.bindTooltip(`<b>${esc(p.nmEng || "Bridge")}</b> <span class="mm">${esc(p.nmMya || "")}</span><br><span class="sub">MIMU bridge${p.length_ft ? " · " + fmt(p.length_ft) + " ft" : ""}</span>`, ttOpt); },
+});
+addLayer("bridges", lBridge, false, () => lBridge.eachLayer(l => l.setStyle({ color: css("--ink"), weight: 1.5, fillColor: css("--surface"), fillOpacity: 1 })));
+
+// schools
+const lSchool = L.geoJSON(GEO.schools, {
+  pane: "pFac", renderer: canvas.pFac,
+  pointToLayer: (f, ll) => L.circleMarker(ll, { radius: 3.2 }),
+  onEachFeature: (f, l) => { const p = f.properties; l.bindTooltip(`<b class="mm">${esc(p.schoolname)}</b><br><span class="sub">MIMU school 2019 · ${esc(p.urbanrural || "")} · ${esc(p.TS)}</span><br>${fmt(p.stream_m)} m to a mapped stream · ${fmt(p.rep_m)} m to a reported village`, ttOpt); },
+});
+addLayer("schools", lSchool, false, () => lSchool.eachLayer(l => l.setStyle({ color: css("--halo"), weight: 0.8, fillColor: css("--school"), fillOpacity: 0.95 })));
+
+// hospitals
+const lHosp = L.geoJSON(GEO.hospitals, {
+  pane: "pFac",
+  pointToLayer: (f, ll) => L.marker(ll, { pane: "pFac", icon: L.divIcon({ className: "", html: `<div style="transform:translate(-50%,-50%)">${hospSvg(15)}</div>`, iconSize: [0, 0] }) }),
+  onEachFeature: (f, l) => { const p = f.properties; l.bindTooltip(`<b>${esc(p.nmHsp_eng)}</b><br><span class="mm">${esc(p.nmHsp_mya || "")}</span><br><span class="sub">${esc(p.lvlHsp_eng || "")}${p.bedClass ? " · " + esc(p.bedClass) + " beds" : ""} · ${esc(p.TS)}</span><br>${fmt(p.stream_m)} m to a mapped stream · ${fmt(p.rep_m)} m to a reported village`, ttOpt); },
+});
+addLayer("hospitals", lHosp, true, null);
+
+// towns
+const lTown = L.layerGroup(GEO.towns.features.map(f => L.marker([f.geometry.coordinates[1], f.geometry.coordinates[0]], {
+  interactive: false, pane: "pFac",
+  icon: L.divIcon({ className: "", html: `<div class="lbl-town" style="transform:translate(-5px,-50%)">${esc(f.properties.Town)}</div>`, iconSize: [0, 0] }),
+})));
+addLayer("towns", lTown, true, null);
+
+// villages
+let colourMode = "dist";
+function villFill(v) {
+  if (colourMode === "prio") return v.prio ? PRIO_BY[v.prio].v : "--d-out";
+  if (colourMode === "basin") return v.basin && BASIN_BY[v.basin] ? BASIN_BY[v.basin].v : "--d-out";
+  return (CLS_BY[v.cls] || CLS_BY["Not in supplied screening"]).v;
+}
+function villRadius(v) {
+  if (colourMode === "prio") return v.prio === "Immediate Field Check" ? 5.5 : v.prio ? 4.5 : 2.6;
+  return v.cls === "0-200 m" ? 4.5 : 3.6;
+}
+function tipHtml(v) {
+  const rep = REP_BY[v.id];
+  return `<b>${esc(v.en)}</b> <span class="mm">${esc(v.mm)}</span><br><span class="sub">${esc(v.vt ? v.vt + " VT, " : "")}${esc(v.ts)}</span><br>` +
+    (v.dist != null ? `${fmt(Math.round(v.dist))} m to a mapped stream` : v.nonMimu ? "Not a MIMU village point" : "Not screened") +
+    (v.prio ? ` · <b>${esc(PRIO_BY[v.prio].label)}</b>` : "") +
+    (rep ? `<br><b style="color:var(${HAZ_BY[rep.hazard].v})">Reported 27 Sep: ${esc(HAZ_BY[rep.hazard].label.toLowerCase())}</b>` : "");
+}
+const vMarkers = {};
+const lVill = L.layerGroup(ITEMS.filter(v => !v.nonMimu).map(v => {
+  const m = L.circleMarker([v.lat, v.lon], { pane: "pVill", renderer: canvas.pVill, radius: 4 });
+  m.bindTooltip(() => tipHtml(v), ttOpt);
+  m.on("click", () => select(v.id, { fly: false }));
+  vMarkers[v.id] = m;
+  return m;
+}));
+addLayer("villages", lVill, true, () => {
+  Object.entries(vMarkers).forEach(([id, m]) => {
+    const v = BY_ID[id];
+    const dim = !passTs(v);
+    m.setStyle({ color: css("--halo"), weight: 1, fillColor: css(villFill(v)), fillOpacity: dim ? 0.25 : 1, opacity: dim ? 0.3 : 1 });
+    m.setRadius(villRadius(v));
+  });
+});
+
+// reported villages (triangles)
+const lRep = L.layerGroup(ITEMS.filter(v => v.hz).map(v => {
+  const m = L.marker([v.lat, v.lon], {
+    pane: "pRep", keyboard: true, title: v.en,
+    icon: L.divIcon({ className: "", html: `<div style="transform:translate(-50%,-60%)">${triSvg(HAZ_BY[v.hz].v, 15)}</div>`, iconSize: [0, 0] }),
+  });
+  m.bindTooltip(() => tipHtml(v), ttOpt);
+  m.on("click", () => select(v.id, { fly: false }));
+  return m;
+}));
+addLayer("reported", lRep, true, null);
+
+// selection ring
+const selRing = L.circleMarker([0, 0], { pane: "pSel", radius: 11, interactive: false, fill: false, weight: 2.5 });
+function paintSel() { selRing.setStyle({ color: css("--ink") }); }
+onTheme.push(paintSel);
+
+/* ---------------------------------------------------------- tile basemaps (optional) */
+const TILES = {
+  none: null,
+  imagery: { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attr: "Imagery © Esri, Maxar, Earthstar Geographics", probe: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/8/118/198" },
+  topo: { url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", attr: "© OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors", probe: "https://a.tile.opentopomap.org/8/198/118.png", maxNativeZoom: 15 },
+};
+const tileAvail = { none: true, imagery: null, topo: null };
+let tileLayer = null;
+function setBasemap(k) {
+  if (tileLayer) { map.removeLayer(tileLayer); tileLayer = null; }
+  const t = TILES[k];
+  tileOn = !!t;
+  if (t) tileLayer = L.tileLayer(t.url, { attribution: t.attr, maxZoom: 16, maxNativeZoom: t.maxNativeZoom || 17, pane: "tilePane" }).addTo(map);
+  paintAll();
+}
+function probe(k) {
+  return new Promise(res => {
+    const img = new Image();
+    const to = setTimeout(() => res(false), 6000);
+    img.onload = () => { clearTimeout(to); res(true); };
+    img.onerror = () => { clearTimeout(to); res(false); };
+    img.src = TILES[k].probe;
+  });
+}
+
+/* ---------------------------------------------------------- layer panel */
+const sq = (v, op = 1, extra = "") => `<span class="lg-sw" style="background:var(${v});opacity:${op};${extra}"></span>`;
+const LAYER_UI = [
+  { group: "Screening and reports", items: [
+    { k: "reported", label: "Reported villages, 27 Sep", sw: triSvg("--h-flood", 12), src: `Dawei Watch via GSM KML (${T.reported})` },
+    { k: "villages", label: "Screened villages", sw: dotSvg("--d-near", 4), src: `MIMU Pcode v9.5 points (${T.mimu_villages}); colour set above the map` },
+    { k: "streams", label: "Mapped streams", sw: `<span class="lg-sw" style="height:3px;background:var(--stream)"></span>`, src: `HydroRIVERS, ${fmt(T.streams)} reaches; small ones appear as you zoom in` },
+    { k: "basins", label: "Hydrological basins", sw: sq("--b-dawei", 0.5), src: "HydroBASINS, 19 polygons (Dawei 8, Tanintharyi River 11)" },
+    { k: "vt", label: "Village tracts with a report", sw: sq("--vt-hit"), src: `MIMU village tracts (${T.village_tracts})` },
+  ]},
+  { group: "MIMU reference layers", items: [
+    { k: "hospitals", label: "Hospitals", sw: hospSvg(12), src: `MIMU health facilities 2020 (${T.hospitals})` },
+    { k: "schools", label: "Schools", sw: dotSvg("--school", 3.5), src: `MIMU formal schools 2019 (${T.schools})` },
+    { k: "roads", label: "Roads and railway", sw: `<span class="lg-sw" style="height:3px;background:var(--road-main)"></span>`, src: "MIMU roads 1:250k, railway" },
+    { k: "crossings", label: "Road–stream crossings", sw: dotSvg("--cross", 3.5), src: `${T.crossings} places a road crosses a stream of order 2+` },
+    { k: "bridges", label: "Bridges", sw: `<svg width="12" height="12"><circle cx="6" cy="6" r="3.5" style="fill:var(--surface);stroke:var(--ink);stroke-width:1.5"/></svg>`, src: `MIMU bridge points (${T.bridges})` },
+    { k: "lowland", label: "Land below 5 m", sw: sq("--lowland", 0.7), src: `MIMU below-5 m layer (${fmt(T.lowland_km2)} km² in the 5 townships)` },
+    { k: "towns", label: "Towns", sw: `<svg width="12" height="12"><rect x="2.5" y="2.5" width="7" height="7" style="fill:var(--halo);stroke:var(--ink);stroke-width:1.5"/></svg>`, src: "MIMU town points" },
+    { k: "wards", label: "Urban wards", sw: sq("--admin", 0.3), src: "MIMU wards v9.4" },
+    { k: "rivers", label: "MIMU river polygons", sw: sq("--river"), src: "MIMU river network" },
+  ]},
+];
+function renderLayerPanel() {
+  const base = `
+    <fieldset><legend>Background</legend>
+      ${[["none", "MIMU vectors only", "Works everywhere, no internet tiles"], ["imagery", "Satellite imagery", "Esri World Imagery"], ["topo", "Topographic", "OpenTopoMap, shows hills and valleys"]].map(([k, l, s]) => `
+        <label class="chk ${tileAvail[k] === false ? "dis" : ""}"><input type="radio" name="bm" value="${k}" id="bm-${k}" ${k === "none" ? "checked" : ""} ${tileAvail[k] === false ? "disabled" : ""} /><span></span><span>${l}</span>
+        <span class="src">${tileAvail[k] === false ? "Can't load in this viewer. Open the standalone page to use it." : tileAvail[k] === null ? "Checking…" : s}</span></label>`).join("")}
+    </fieldset>`;
+  $("#layers").innerHTML = base + LAYER_UI.map(g => `
+    <fieldset><legend>${esc(g.group)}</legend>
+      ${g.items.map(it => `<label class="chk"><input type="checkbox" id="ly-${it.k}" data-k="${it.k}" ${layers[it.k].on ? "checked" : ""} /><span style="display:grid;place-items:center">${it.sw}</span><span>${esc(it.label)}</span><span class="src">${esc(it.src)}</span></label>`).join("")}
+    </fieldset>`).join("");
+  $$("#layers input[type=checkbox]").forEach(i => i.addEventListener("change", () => toggleLayer(i.dataset.k, i.checked)));
+  $$("#layers input[name=bm]").forEach(i => i.addEventListener("change", () => setBasemap(i.value)));
+  const cur = tileLayer ? Object.keys(TILES).find(k => TILES[k] && tileLayer._url === TILES[k].url) : "none";
+  const r = $(`#bm-${cur}`); if (r) r.checked = true;
+}
+function toggleLayer(k, on) {
+  const L_ = layers[k]; L_.on = on;
+  if (on) { L_.layer.addTo(map); L_.paint && L_.paint(); } else map.removeLayer(L_.layer);
+  const cb = $(`#ly-${k}`); if (cb) cb.checked = on;
+  zoomRules();
+}
+renderLayerPanel();
+Promise.all(["imagery", "topo"].map(k => probe(k).then(ok => { tileAvail[k] = ok; }))).then(renderLayerPanel);
+
+function zoomRules() {
+  const z = map.getZoom();
+  const wantMinor = layers.streams.on && z >= 9.5;
+  if (wantMinor && !lStreams.hasLayer(lStrMinor)) { lStreams.addLayer(lStrMinor); layers.streams.paint(); }
+  if (!wantMinor && lStreams.hasLayer(lStrMinor)) lStreams.removeLayer(lStrMinor);
+  if (layers.towns.on) { if (z < 8.5) map.removeLayer(lTown); else if (!map.hasLayer(lTown)) lTown.addTo(map); }
+  if (z > 11.5) map.removeLayer(tsLabels); else if (!map.hasLayer(tsLabels)) tsLabels.addTo(map);
+}
+map.on("zoomend", zoomRules);
+
+/* ---------------------------------------------------------- legend */
+function renderLegend() {
+  let colour;
+  if (colourMode === "prio") colour = `<h4>Village colour: monitoring priority</h4><div class="lg-row">${PRIO.map(p => `<span class="lg-i">${dotSvg(p.v, 4.5)}${p.label}</span>`).join("")}<span class="lg-i">${dotSvg("--d-out", 3)}Not graded (over 200 m)</span></div>`;
+  else if (colourMode === "basin") colour = `<h4>Village colour: basin</h4><div class="lg-row">${BASIN.map(b => `<span class="lg-i">${dotSvg(b.v, 4)}${b.label}</span>`).join("")}<span class="lg-i">${dotSvg("--d-out", 4)}Outside coverage</span></div>`;
+  else colour = `<h4>Village colour: distance to mapped stream</h4><div class="lg-row">${CLS.map(c => `<span class="lg-i">${dotSvg(c.v, 4)}${c.label.replace("Outside basin coverage", "Not screened")}</span>`).join("")}</div>`;
+  $("#legend").innerHTML = `
+    <button class="legend-toggle" type="button" id="lgBtn" aria-expanded="${!legendCollapsed}">Legend</button>
+    <h4>Reported 27 Sep (Dawei Watch)</h4><div class="lg-row">${HAZ.map(h => `<span class="lg-i">${triSvg(h.v, 11)}${h.label}</span>`).join("")}</div>
+    ${colour}
+    <div class="lg-row" style="margin-top:6px">
+      <span class="lg-i"><span class="lg-sw" style="height:3px;background:var(--stream)"></span>Stream</span>
+      <span class="lg-i">${sq("--lowland", 0.7)}Below 5 m</span>
+      <span class="lg-i">${sq("--vt-hit")}Tract with a report</span>
+      <span class="lg-i">${hospSvg(11)}Hospital</span>
+    </div>`;
+  const lg = $("#legend");
+  lg.classList.toggle("collapsed", legendCollapsed);
+  $("#lgBtn").addEventListener("click", () => { legendCollapsed = !legendCollapsed; renderLegend(); });
+}
+let legendCollapsed = matchMedia("(max-width: 600px)").matches;
+
+$$(".seg [data-mode]").forEach(b => b.addEventListener("click", () => {
+  colourMode = b.dataset.mode;
+  $$(".seg [data-mode]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  layers.villages.paint(); renderLegend();
+}));
+
+/* ================================================================== PANEL */
+function tabTo(which) {
+  ["v", "l"].forEach(k => {
+    $(`#tab-${k}`).setAttribute("aria-selected", String(k === which));
+    $(`#pane-${k}`).hidden = k !== which;
+  });
+}
+$("#tab-v").addEventListener("click", () => tabTo("v"));
+$("#tab-l").addEventListener("click", () => tabTo("l"));
+
+let tsFilter = "all", showFilter = "all", selId = null;
+function passTs(v) { return tsFilter === "all" || v.ts === tsFilter; }
+const SHOW = [
+  ["all", "All villages", () => true],
+  ["rep", "Reported", v => !!v.hz],
+  ["imm", "Immediate check", v => v.prio === "Immediate Field Check"],
+  ["near", "Within 200 m", v => v.cls === "0-200 m"],
+  ["low", "Below 5 m", v => v.low5],
+];
+$("#tsChips").innerHTML = [["all", "All"], ...TS_ORDER.map(t => [t, t])].map(([k, l]) => `<button type="button" class="chip" data-ts="${k}" aria-pressed="${k === "all"}">${l}</button>`).join("");
+$("#showChips").innerHTML = SHOW.map(([k, l]) => `<button type="button" class="chip" data-show="${k}" aria-pressed="${k === "all"}">${l}</button>`).join("");
+$$("#tsChips .chip").forEach(b => b.addEventListener("click", () => setTs(b.dataset.ts)));
+$$("#showChips .chip").forEach(b => b.addEventListener("click", () => {
+  showFilter = b.dataset.show;
+  $$("#showChips .chip").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  renderList();
+}));
+function setTs(t, fly = true) {
+  tsFilter = t;
+  $$("#tsChips .chip").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ts === t)));
+  renderList(); layers.villages.paint();
+  if (fly) {
+    const f = t === "all" ? null : GEO.townships.features.find(x => x.properties.TS === t);
+    map.flyToBounds(f ? L.geoJSON(f).getBounds() : B_ALL, { padding: [10, 10], duration: 0.8 });
+  }
+}
+$("#q").addEventListener("input", renderList);
+
+function sortKey(v) {
+  return [v.hz ? 0 : 1, v.prio ? PRIO_RANK[v.prio] : 3, v.dist ?? 1e9];
+}
+function cmp(a, b) { const x = sortKey(a), y = sortKey(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; }
+function rowGlyph(v) {
+  if (v.hz) return triSvg(HAZ_BY[v.hz].v, 11);
+  if (v.prio) return dotSvg(PRIO_BY[v.prio].v, 4.5);
+  return dotSvg((CLS_BY[v.cls] || CLS_BY["Not in supplied screening"]).v, 3.5);
+}
+function renderList() {
+  const q = $("#q").value.trim().toLowerCase();
+  const pass = SHOW.find(s => s[0] === showFilter)[2];
+  const rows = ITEMS.filter(v => passTs(v) && pass(v) && (!q || (v.en || "").toLowerCase().includes(q) || (v.mm || "").includes(q) || (v.vt || "").toLowerCase().includes(q))).sort(cmp);
+  $("#vcount").textContent = `${rows.length} village${rows.length === 1 ? "" : "s"} · reported first, then by priority and distance`;
+  const shown = rows.slice(0, 250);
+  $("#vlist").innerHTML = shown.map(v => `<li><button type="button" class="vrow" data-id="${esc(v.id)}" aria-current="${v.id === selId}">
+    <span style="display:grid;place-items:center">${rowGlyph(v)}</span>
+    <span><span class="nm">${esc(v.en)}<span class="mm">${esc(v.mm)}</span></span><br><span class="meta">${esc(v.ts)}${v.vt ? " · " + esc(v.vt) : ""}</span></span>
+    <span class="d">${v.dist != null ? fmt(Math.round(v.dist)) + " m" : "–"}</span></button></li>`).join("") +
+    (rows.length > shown.length ? `<li class="count">Showing the first 250. Narrow with a township or search.</li>` : "");
+  $$("#vlist .vrow").forEach(b => b.addEventListener("click", () => select(b.dataset.id)));
+}
+
+function nearest(list, v) {
+  let best = null, bd = Infinity;
+  list.forEach(f => {
+    const [x, y] = f.geometry.coordinates;
+    const d = hav(v.lat, v.lon, y, x);
+    if (d < bd) { bd = d; best = f; }
+  });
+  return [best, bd];
+}
+function hav(la1, lo1, la2, lo2) {
+  const R = 6371e3, r = Math.PI / 180;
+  const a = Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+const dm = m => m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
+
+function renderDetail() {
+  const box = $("#detail");
+  const v = selId && BY_ID[selId];
+  if (!v) { box.innerHTML = ""; return; }
+  const rep = REP_BY[v.id];
+  const pills = [];
+  if (rep) pills.push(`<span class="pill"><span class="dot" style="background:var(${HAZ_BY[rep.hazard].v});border-radius:1px;clip-path:polygon(50% 0,100% 100%,0 100%)"></span>Reported: ${esc(HAZ_BY[rep.hazard].label.toLowerCase())}</span>`);
+  if (v.prio) pills.push(`<span class="pill"><span class="dot" style="background:var(${PRIO_BY[v.prio].v})"></span>${esc(PRIO_BY[v.prio].label)}</span>`);
+  const c = CLS_BY[v.cls] || CLS_BY["Not in supplied screening"];
+  pills.push(`<span class="pill"><span class="dot" style="background:var(${c.v})"></span>${esc(c.label)}</span>`);
+  if (v.low5) pills.push(`<span class="pill"><span class="dot" style="background:var(--lowland)"></span>Land below 5 m</span>`);
+  const [hs, hd] = nearest(GEO.hospitals.features, v);
+  const [, sd] = nearest(GEO.schools.features, v);
+  const rows = [
+    ["Stream distance", v.dist != null ? `${fmt(v.dist)} m to the nearest mapped stream` : v.own != null ? `${fmt(Math.round(v.own))} m (computed here; not in the GSM screen)` : "Not screened"],
+    ["Stream order", v.ord ? `Strahler ${v.ord}` : "–"],
+    ["Elevation class", v.elev ? `${esc(v.elev)} m${v.dem != null ? ` · DEM confidence ${v.dem}` : ""}` : "–"],
+    ["Basin", v.basin ? esc((BASIN_BY[v.basin] || { label: v.basin }).label) : "Outside supplied basin polygons"],
+    ["Nearest hospital", hs ? `${esc(hs.properties.nmHsp_eng)}, ${dm(hd)}` : "–"],
+    ["Nearest school", `${dm(sd)}`],
+    ["Pcode", v.nonMimu ? "None (not a MIMU village point)" : esc(v.id)],
+  ];
+  if (v.edge) rows.push(["Review", "Within 200 m of a basin edge; check which basin it drains to"]);
+  if (v.gsm) rows.push(["GSM list", "On GSM's 27 Sep priority-monitoring list"]);
+  if (rep) rows.push(["Source", esc(rep.source)]);
+  box.innerHTML = `<div class="detail">
+    <button type="button" class="close" id="clearSel">Close ×</button>
+    <h3>${esc(v.en)}</h3><div class="mm">${esc(v.mm)}</div>
+    <div class="where">${v.vt ? esc(v.vt) + " village tract · " : ""}${esc(v.ts)} Township <span class="mm">(${esc(TS_MM[v.ts] || "")})</span></div>
+    <div class="pills">${pills.join("")}</div>
+    <dl class="kv">${rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join("")}</dl>
+  </div>`;
+  $("#clearSel").addEventListener("click", () => select(null));
+}
+function select(id, { fly = true } = {}) {
+  selId = id;
+  const v = id && BY_ID[id];
+  if (v) {
+    selRing.setLatLng([v.lat, v.lon]); paintSel();
+    if (!map.hasLayer(selRing)) selRing.addTo(map);
+    if (fly) map.flyTo([v.lat, v.lon], Math.max(map.getZoom(), 12), { duration: 0.8 });
+    tabTo("v");
+    if (tsFilter !== "all" && tsFilter !== v.ts) setTs(v.ts, false);
+  } else map.removeLayer(selRing);
+  renderDetail(); renderList();
+  $("#pane-v").scrollTop = 0;
+}
+function goVillage(id) {
+  $("#work").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  select(id);
+}
+
+renderLegend(); paintAll(); zoomRules(); renderList();
+
+/* ================================================================== CHARTS */
+function svgEl(tag, attrs = {}, parent) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function niceTicks(max, n = 4) {
+  const raw = max / n, mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw);
+  const out = []; for (let v = 0; v <= max + 1e-9; v += step) out.push(+v.toFixed(6));
+  if (out[out.length - 1] < max) out.push(out[out.length - 1] + step);
+  return out;
+}
+function tipFor(container) {
+  let t = container.querySelector(".tip");
+  if (!t) { t = document.createElement("div"); t.className = "tip"; t.setAttribute("role", "status"); container.appendChild(t); }
+  return {
+    show(html, x, y) {
+      t.innerHTML = html; t.classList.add("on");
+      const cw = container.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+      let left = x + 14; if (left + tw > cw) left = x - tw - 14; if (left < 0) left = 0;
+      let top = y - th - 10; if (top < 0) top = y + 14;
+      t.style.left = left + "px"; t.style.top = top + "px";
+    },
+    hide() { t.classList.remove("on"); },
+  };
+}
+function localXY(el, ev) { const r = el.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; }
+const hbarPath = (x, y, w, h, r = 4) => {
+  if (w <= 0) return "";
+  r = Math.min(r, w, h / 2);
+  return `M${x} ${y} H${x + w - r} Q${x + w} ${y} ${x + w} ${y + r} V${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} H${x} Z`;
+};
+const charts = [];
+function chart(el, draw) {
+  const run = () => { el.querySelectorAll("svg").forEach(s => s.remove()); draw(el, el.clientWidth); };
+  charts.push(run);
+  let lastW = 0;
+  new ResizeObserver(() => { if (el.clientWidth !== lastW) { lastW = el.clientWidth; run(); } }).observe(el);
+}
+const legendHtml = items => items.map(i => `<span class="lg-i">${i.g || `<span class="lg-sw" style="background:var(${i.v})"></span>`}${esc(i.label)}</span>`).join("");
+
+/* ---- stacked horizontal bars, one row per township */
+function stacked(el, cats, valueOf, { onClick, total } = {}) {
+  chart(el, (box, W) => {
+    const rowH = 26, gap = 12, left = 104, right = 40, top = 4;
+    const rows = TS_ORDER.map(t => ({ t, vals: cats.map(c => valueOf(t, c.k)) }));
+    const max = total || Math.max(...rows.map(r => r.vals.reduce((a, b) => a + b, 0)));
+    const ticks = niceTicks(max, 4);
+    const tmax = ticks[ticks.length - 1];
+    const H = top + rows.length * (rowH + gap) + 18;
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img" }, box);
+    const iw = W - left - right, x = v => left + v / tmax * iw;
+    ticks.forEach(tk => {
+      svgEl("line", { x1: x(tk), x2: x(tk), y1: top - 2, y2: H - 18, style: "stroke:var(--grid)" }, svg);
+      svgEl("text", { x: x(tk), y: H - 4, "text-anchor": "middle", class: "ax" }, svg).textContent = fmt(tk);
+    });
+    const tip = tipFor(box);
+    rows.forEach((r, i) => {
+      const y = top + i * (rowH + gap);
+      const lab = svgEl("text", { x: left - 10, y: y + rowH / 2 + 4, "text-anchor": "end", class: "ax-l" }, svg);
+      lab.textContent = r.t;
+      let acc = 0;
+      const sum = r.vals.reduce((a, b) => a + b, 0);
+      r.vals.forEach((v, j) => {
+        if (!v) return;
+        const x0 = x(acc), w = x(acc + v) - x0;
+        const isLast = r.vals.slice(j + 1).every(z => !z);
+        const d = isLast ? hbarPath(x0, y, Math.max(w - 2, 1), rowH, 4) : `M${x0} ${y} h${Math.max(w - 2, 1)} v${rowH} h${-Math.max(w - 2, 1)} Z`;
+        const p = svgEl("path", { d, style: `fill:var(${cats[j].v})`, tabindex: 0 }, svg);
+        const show = ev => {
+          const [mx, my] = ev.type === "focus" ? [x0 + w / 2, y] : localXY(box, ev);
+          tip.show(`<b>${esc(r.t)}</b><br>${esc(cats[j].label)}: <b>${fmt(v)}</b> of ${fmt(sum)} (${Math.round(100 * v / sum)}%)`, mx, my);
+        };
+        p.addEventListener("pointermove", show); p.addEventListener("focus", show);
+        p.addEventListener("pointerleave", () => tip.hide()); p.addEventListener("blur", () => tip.hide());
+        if (onClick) { p.style.cursor = "pointer"; p.addEventListener("click", () => onClick(r.t, cats[j].k)); }
+        acc += v;
+      });
+      svgEl("text", { x: x(acc) + 6, y: y + rowH / 2 + 4, class: "val" }, svg).textContent = fmt(sum);
+    });
+  });
+}
+
+/* ---- 1. reported vs immediate, paired bars */
+(function pair() {
+  const S = [
+    { k: "rep", label: "Reported 27 Sep", v: "--h-flood", val: t => TS[t].reported },
+    { k: "imm", label: "Immediate field check", v: "--p-imm", val: t => TS[t].priority["Immediate Field Check"] },
+  ];
+  $("#lgPair").innerHTML = legendHtml([{ label: S[0].label, g: triSvg("--h-flood", 10) }, { label: S[1].label, v: S[1].v }]);
+  chart($("#cPair"), (box, W) => {
+    const left = 104, right = 36, top = 2, bh = 13, inner = 3, gap = 16;
+    const max = Math.max(...TS_ORDER.flatMap(t => S.map(s => s.val(t))));
+    const ticks = niceTicks(max, 5), tmax = ticks[ticks.length - 1];
+    const rowH = bh * 2 + inner;
+    const H = top + TS_ORDER.length * (rowH + gap) + 16;
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Reported villages versus Immediate Field Check villages per township" }, box);
+    const x = v => left + v / tmax * (W - left - right);
+    ticks.forEach(tk => {
+      svgEl("line", { x1: x(tk), x2: x(tk), y1: 0, y2: H - 16, style: "stroke:var(--grid)" }, svg);
+      svgEl("text", { x: x(tk), y: H - 2, "text-anchor": "middle", class: "ax" }, svg).textContent = tk;
+    });
+    const tip = tipFor(box);
+    TS_ORDER.forEach((t, i) => {
+      const y0 = top + i * (rowH + gap);
+      svgEl("text", { x: left - 10, y: y0 + rowH / 2 + 4, "text-anchor": "end", class: "ax-l" }, svg).textContent = t;
+      S.forEach((s, j) => {
+        const v = s.val(t), y = y0 + j * (bh + inner);
+        if (v > 0) {
+          const p = svgEl("path", { d: hbarPath(x(0), y, x(v) - x(0), bh, 4), style: `fill:var(${s.v})` }, svg);
+          p.addEventListener("pointermove", ev => { const [mx, my] = localXY(box, ev); tip.show(`<b>${esc(t)}</b><br>${esc(s.label)}: <b>${v}</b> villages`, mx, my); });
+          p.addEventListener("pointerleave", () => tip.hide());
+        } else {
+          svgEl("line", { x1: x(0), x2: x(0), y1: y, y2: y + bh, style: `stroke:var(${s.v});stroke-width:2` }, svg);
+        }
+        svgEl("text", { x: x(v) + 6, y: y + bh - 2, class: "val" }, svg).textContent = v;
+      });
+    });
+    svgEl("line", { x1: x(0), x2: x(0), y1: 0, y2: H - 16, style: "stroke:var(--axis)" }, svg);
+  });
+})();
+
+/* ---- 2. report rate by distance class */
+(function rate() {
+  const R = AN.rate;
+  const cats = CLS.slice(0, 3).map(c => ({ ...c, ...R[c.k] }));
+  chart($("#cRate"), (box, W) => {
+    const left = 12, right = 12, top = 22, bottom = 44, H = 230;
+    const max = Math.max(...cats.map(c => c.pct));
+    const ticks = niceTicks(max, 4), tmax = ticks[ticks.length - 1];
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Share of villages reported per distance class" }, box);
+    const ih = H - top - bottom, y = v => top + ih - v / tmax * ih;
+    const lw = 34;
+    ticks.forEach(tk => {
+      svgEl("line", { x1: lw, x2: W - right, y1: y(tk), y2: y(tk), style: "stroke:var(--grid)" }, svg);
+      svgEl("text", { x: lw - 6, y: y(tk) + 4, "text-anchor": "end", class: "ax" }, svg).textContent = tk + "%";
+    });
+    const bw = Math.min(70, (W - lw - right) / cats.length * 0.55);
+    const step = (W - lw - right) / cats.length;
+    const tip = tipFor(box);
+    cats.forEach((c, i) => {
+      const cx = lw + step * (i + 0.5), h = y(0) - y(c.pct);
+      const r = Math.min(4, h);
+      const p = svgEl("path", { d: `M${cx - bw / 2} ${y(0)} V${y(c.pct) + r} Q${cx - bw / 2} ${y(c.pct)} ${cx - bw / 2 + r} ${y(c.pct)} H${cx + bw / 2 - r} Q${cx + bw / 2} ${y(c.pct)} ${cx + bw / 2} ${y(c.pct) + r} V${y(0)} Z`, style: `fill:var(${c.v})` }, svg);
+      p.addEventListener("pointermove", ev => { const [mx, my] = localXY(box, ev); tip.show(`<b>${esc(c.label)}</b><br>${c.reported} of ${c.villages} villages reported (${c.pct}%)`, mx, my); });
+      p.addEventListener("pointerleave", () => tip.hide());
+      svgEl("text", { x: cx, y: y(c.pct) - 6, "text-anchor": "middle", class: "val" }, svg).textContent = c.pct + "%";
+      svgEl("text", { x: cx, y: H - bottom + 17, "text-anchor": "middle", class: "ax-l" }, svg).textContent = c.label;
+      svgEl("text", { x: cx, y: H - bottom + 33, "text-anchor": "middle", class: "ax" }, svg).textContent = `${c.reported} of ${c.villages}`;
+    });
+    svgEl("line", { x1: lw, x2: W - right, y1: y(0), y2: y(0), style: "stroke:var(--axis)" }, svg);
+  });
+  $("#rateNote").textContent = `If distance to a mapped stream drove the 27 September reports, the first bar would be the tallest. It is the shortest. One reported locality (Shin Moke Tee) is not a MIMU village and is left out.`;
+})();
+
+/* ---- 3. strip plot of distances */
+(function strip() {
+  const vs = ITEMS.filter(v => v.dist != null);
+  $("#lgStrip").innerHTML = legendHtml([
+    ...CLS.slice(0, 3).map(c => ({ label: c.label, g: dotSvg(c.v, 3.5) })),
+    ...HAZ.map(h => ({ label: "Reported: " + h.label.toLowerCase(), g: triSvg(h.v, 10) })),
+  ]);
+  // deterministic jitter from the pcode
+  const jit = id => { let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return (h % 1000) / 1000; };
+  chart($("#cStrip"), (box, W) => {
+    const left = 104, right = 16, top = 22, laneH = 34, gap = 10, H = top + TS_ORDER.length * (laneH + gap) + 22;
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Distance to nearest mapped stream per village, by township" }, box);
+    const lo = Math.log10(1), hi = Math.log10(10000);
+    const x = d => left + (Math.log10(Math.max(d, 1)) - lo) / (hi - lo) * (W - left - right);
+    [1, 10, 100, 1000, 10000].forEach(tk => {
+      svgEl("line", { x1: x(tk), x2: x(tk), y1: top - 4, y2: H - 20, style: "stroke:var(--grid)" }, svg);
+      svgEl("text", { x: x(tk), y: H - 5, "text-anchor": "middle", class: "ax" }, svg).textContent = tk >= 1000 ? tk / 1000 + " km" : tk + " m";
+    });
+    [200, 500].forEach(tk => {
+      svgEl("line", { x1: x(tk), x2: x(tk), y1: top - 4, y2: H - 20, style: "stroke:var(--ink-3);stroke-dasharray:3 3" }, svg);
+      svgEl("text", { x: x(tk) + 3, y: top - 8, class: "ax" }, svg).textContent = tk + " m";
+    });
+    const tip = tipFor(box);
+    TS_ORDER.forEach((t, i) => {
+      const y0 = top + i * (laneH + gap);
+      svgEl("rect", { x: left, y: y0, width: W - left - right, height: laneH, rx: 4, style: "fill:var(--surface-2)" }, svg);
+      svgEl("text", { x: left - 10, y: y0 + laneH / 2 + 4, "text-anchor": "end", class: "ax-l" }, svg).textContent = t;
+      const g = svgEl("g", {}, svg);
+      vs.filter(v => v.ts === t && !v.hz).forEach(v => {
+        svgEl("circle", { cx: x(v.dist), cy: y0 + 5 + jit(v.id) * (laneH - 10), r: 2.6, style: `fill:var(${CLS_BY[v.cls].v});opacity:.85` }, g);
+      });
+      vs.filter(v => v.ts === t && v.hz).forEach(v => {
+        const cx = x(v.dist), cy = y0 + 6 + jit(v.id + "r") * (laneH - 12), s = 6;
+        const p = svgEl("path", { d: `M${cx} ${cy - s} L${cx + s} ${cy + s * 0.8} L${cx - s} ${cy + s * 0.8} Z`, style: `fill:var(${HAZ_BY[v.hz].v});stroke:var(--halo);stroke-width:1.2;cursor:pointer`, tabindex: 0 }, g);
+        const show = ev => { const [mx, my] = ev.type === "focus" ? [cx, cy] : localXY(box, ev); tip.show(`<b>${esc(v.en)}</b> <span class="mm">${esc(v.mm)}</span><br>${fmt(Math.round(v.dist))} m to a mapped stream<br>${esc(HAZ_BY[v.hz].label)}`, mx, my); };
+        p.addEventListener("pointermove", show); p.addEventListener("focus", show);
+        p.addEventListener("pointerleave", () => tip.hide()); p.addEventListener("blur", () => tip.hide());
+        p.addEventListener("click", () => goVillage(v.id));
+      });
+    });
+  });
+})();
+
+/* ---- 4. distance / priority / basin by township */
+$("#lgDist").innerHTML = legendHtml(CLS);
+stacked($("#cDist"), CLS, (t, k) => TS[t].cls[k], { onClick: t => { setTs(t); goWork(); } });
+$("#lgPrio").innerHTML = legendHtml(PRIO);
+stacked($("#cPrio"), PRIO, (t, k) => TS[t].priority[k], { onClick: (t) => { setTs(t); showFilter = "imm"; $$("#showChips .chip").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.show === "imm"))); renderList(); goWork(); } });
+const BASIN_CATS = [...BASIN, { k: "outside", label: "Outside coverage", v: "--d-out" }];
+$("#lgBasin").innerHTML = legendHtml(BASIN_CATS);
+stacked($("#cBasin"), BASIN_CATS, (t, k) => ITEMS.filter(v => v.ts === t && !v.nonMimu && v.cls !== "Not in supplied screening" && (k === "outside" ? !v.basin || v.basin === "Outside supplied polygons" : v.basin === k)).length);
+function goWork() { $("#work").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); }
+
+/* ---- 5. township table */
+(function tsTable() {
+  const cols = [
+    ["Township", t => `<b>${esc(t.ts)}</b> <span class="mm muted">${esc(t.ts_mm)}</span><br><span class="muted" style="font-size:12px">${esc(t.dt)} District</span>`],
+    ["Villages", t => `${fmt(t.screened)}${t.screened !== t.mimu_villages ? `<span class="muted"> / ${t.mimu_villages}</span>` : ""}`, 1],
+    ["≤200 m", t => fmt(t.cls["0-200 m"]), 1],
+    ["Immediate", t => fmt(t.priority["Immediate Field Check"]), 1],
+    ["Reported", t => t.reported ? `<b>${t.reported}</b>` : "0", 1],
+    ["Below 5 m", t => `${t.lowland_pct}%`, 1],
+    ["Schools", t => `${fmt(t.schools)}`, 1],
+    ["Hospitals", t => fmt(t.hospitals), 1],
+  ];
+  $("#tTs").innerHTML = `<thead><tr>${cols.map(c => `<th class="${c[2] ? "n" : ""}">${c[0]}</th>`).join("")}</tr></thead><tbody>` +
+    TS_ORDER.map(k => `<tr class="go" tabindex="0" data-ts="${k}">${cols.map(c => `<td class="${c[2] ? "n" : ""}">${c[1](TS[k])}</td>`).join("")}</tr>`).join("") +
+    `<tr><td><b>Total</b></td><td class="n"><b>${fmt(T.screened)}</b><span class="muted"> / ${T.mimu_villages}</span></td><td class="n"><b>${T.cls["0-200 m"]}</b></td><td class="n"><b>${T.priority["Immediate Field Check"]}</b></td><td class="n"><b>${T.reported}</b></td><td class="n muted">${fmt(T.lowland_km2)} km²</td><td class="n"><b>${T.schools}</b></td><td class="n"><b>${T.hospitals}</b></td></tr></tbody>`;
+  $$("#tTs tr.go").forEach(tr => {
+    const go = () => { setTs(tr.dataset.ts); goWork(); };
+    tr.addEventListener("click", go);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+})();
+
+/* ---- 6. hazards */
+(function haz() {
+  const cats = HAZ.map(h => ({ ...h, n: T.reported_hz[h.k] || 0 }));
+  chart($("#cHaz"), (box, W) => {
+    const left = 12, top = 4, bh = 26, gap = 30, H = top + cats.length * (bh + gap);
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Reported villages by hazard" }, box);
+    const max = Math.max(...cats.map(c => c.n));
+    const x = v => left + v / max * (W - left - 40);
+    cats.forEach((c, i) => {
+      const y = top + i * (bh + gap);
+      svgEl("text", { x: left, y: y + 12, class: "ax-l" }, svg).textContent = c.label;
+      svgEl("path", { d: hbarPath(left, y + 18, x(c.n) - left, bh - 8, 4), style: `fill:var(${c.v})` }, svg);
+      svgEl("text", { x: x(c.n) + 6, y: y + 18 + bh - 12, class: "val" }, svg).textContent = c.n;
+    });
+  });
+  const byTs = TS_ORDER.filter(t => TS[t].reported).map(t => `${t} ${TS[t].reported}`).join(" · ");
+  $("#cHaz").insertAdjacentHTML("afterend", `<p class="note">By township: ${byTs}. Every Launglon report names both flooding and landslides; the two Palaw villages report a road under water.</p>`);
+})();
+
+/* ---- 7. reported table */
+(function repTable() {
+  const rows = AN.reported.slice().sort((a, b) => TS_ORDER.indexOf(a.ts) - TS_ORDER.indexOf(b.ts) || (a.dist ?? a.stream_m) - (b.dist ?? b.stream_m));
+  $("#tRep").innerHTML = `<thead><tr><th>Village</th><th>Township · tract</th><th>Hazard</th><th class="n">Stream</th><th>Screen result</th></tr></thead><tbody>` +
+    rows.map(r => {
+      const id = r.pcode || "r-" + r.mm;
+      const cls = r.cls === "Not in screening" ? `<span class="muted">Not a MIMU village</span>` :
+        `<span class="badge"><i style="background:var(${(r.priority ? PRIO_BY[r.priority] : CLS_BY[r.cls]).v})"></i>${esc(r.priority ? PRIO_BY[r.priority].label : CLS_BY[r.cls].label)}</span>`;
+      return `<tr class="go" tabindex="0" data-id="${esc(id)}">
+        <td><b>${esc(r.en || r.vt || "")}</b><br><span class="mm">${esc(r.mm)}</span></td>
+        <td>${esc(r.ts)}<br><span class="muted">${esc(r.vt || "")}</span></td>
+        <td><span class="badge">${triSvg(HAZ_BY[r.hazard].v, 9)}${esc(HAZ_BY[r.hazard].label)}</span>${r.low5 ? `<br><span class="muted" style="font-size:12px">On land below 5 m</span>` : ""}</td>
+        <td class="n">${fmt(Math.round(r.dist ?? r.stream_m))} m</td>
+        <td>${cls}</td></tr>`;
+    }).join("") + `</tbody>`;
+  $$("#tRep tr.go").forEach(tr => {
+    const go = () => goVillage(tr.dataset.id);
+    tr.addEventListener("click", go);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+})();
+
+/* ---- 8. crossings */
+(function cross() {
+  const cats = [{ k: "b", label: "MIMU bridge within 300 m", v: "--accent" }, { k: "u", label: "No mapped bridge", v: "--cross" }];
+  $("#lgCross").innerHTML = legendHtml(cats);
+  stacked($("#cCross"), cats, (t, k) => k === "b" ? TS[t].crossings - TS[t].crossings_unbridged : TS[t].crossings_unbridged);
+  $("#crossNote").innerHTML = `MIMU's bridge layer holds only ${T.bridges} named bridges here, so most crossings are culverts or fords it does not record. <button type="button" class="btn" id="showX" style="margin-left:4px">Show crossings on the map</button>`;
+  $("#showX").addEventListener("click", () => { toggleLayer("crossings", true); toggleLayer("roads", true); goWork(); });
+})();
+
+/* ---- 9. facilities table */
+(function fac() {
+  const F = AN.facilities;
+  $("#facSub").textContent = `${F.length} MIMU facilities within ${AN.near_stream_m} m of a mapped stream or ${AN.near_site_m / 1000} km of a reported or Immediate-check village. Hospitals first, then nearest to a reported village.`;
+  $("#tFac").innerHTML = `<thead><tr><th>Facility</th><th>Township</th><th class="n">Stream</th><th class="n">Reported village</th><th>Flags</th></tr></thead><tbody>` +
+    F.map((f, i) => `<tr class="go" tabindex="0" data-i="${i}">
+      <td>${f.kind === "health" ? hospSvg(11) + " " : ""}<span class="${f.kind === "school" ? "mm" : ""}">${esc(f.name)}</span></td>
+      <td>${esc(f.ts)}</td>
+      <td class="n">${fmt(f.stream_m)} m</td>
+      <td class="n">${dm(f.rep_m)}<br><span class="mm muted" style="font-size:12px">${esc(f.rep_near)}</span></td>
+      <td style="font-size:12.5px">${[f.near_rep ? "Near a reported village" : "", f.near_imm ? "Near an Immediate village" : "", f.stream_m <= AN.near_stream_m ? "Within 200 m of a stream" : "", f.low5 ? "Below 5 m" : ""].filter(Boolean).join("<br>")}</td></tr>`).join("") + `</tbody>`;
+  $$("#tFac tr.go").forEach(tr => {
+    const f = F[+tr.dataset.i];
+    const go = () => {
+      toggleLayer(f.kind === "health" ? "hospitals" : "schools", true);
+      goWork();
+      map.flyTo([f.lat, f.lon], 13, { duration: 0.8 });
+      selRing.setLatLng([f.lat, f.lon]); paintSel(); if (!map.hasLayer(selRing)) selRing.addTo(map);
+    };
+    tr.addEventListener("click", go);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+})();
+
+/* ---- 10. method */
+(function method() {
+  const A = AN.audit;
+  const cards = [
+    { h: "What the supplied data is", li: [
+      `<b>655 village points</b> from five GSM township KMLs (MIMU Pcode v9.5), each screened by GSM on ${esc(A.created_label_date)} for straight-line distance to the nearest mapped stream and for basin membership.`,
+      `<b>197 villages within 200 m</b> were graded by GSM into Immediate field check (${T.priority["Immediate Field Check"]}), Enhanced monitoring (${T.priority["Enhanced Monitoring"]}) and Monitoring (${T.priority["Monitoring"]}), using a visual elevation class read from DEM maps. In the data, every Immediate village is in the lowest two elevation classes and lies within about 50 m of a stream (up to 95 m on larger streams of order 3+).`,
+      `<b>${T.reported} reported villages</b> from Dawei Watch's report of 27 September 2026, plotted by GSM, with the hazard named for each. The ${T.gsm} GSM priority-monitoring villages in the same file are exactly the Immediate field check list.`,
+      `<b>Streams and basins</b>: HydroRIVERS (${fmt(T.streams)} reaches, ${fmt(T.stream_km)} km) and HydroBASINS (19 polygons) for the Dawei and Tanintharyi River basins and their coastal neighbours.`,
+    ]},
+    { h: "What this dashboard added", li: [
+      `Joined every point to the <b>MIMU village layer</b> (v9.7): all 655 match a Pcode. MIMU lists ${T.mimu_villages - T.screened} more villages in these townships that the screening did not include (${T.not_screened_mimu.map(v => esc(v.VILLAGE)).join(", ")}).`,
+      `Matched the reported villages to MIMU by Myanmar name within the township; 37 of 38 match at the exact GSM position.`,
+      `Measured MIMU schools (2019), hospitals (2020), roads and land below 5 m against the same streams and against the reported villages, in UTM zone 47N (EPSG:32647), the CRS GSM used.`,
+      `Found where MIMU roads cross streams of Strahler order 2 or higher, and checked each crossing for a MIMU bridge within 300 m.`,
+    ]},
+    { h: "Limits", li: [
+      `200 m and 500 m are GIS filters, not flood limits, safe setbacks or evacuation triggers. A village beyond 500 m is not safe; one within 200 m is not flooded.`,
+      `HydroRIVERS is generalised from 15 arc-second data. Small streams and drains are missing, and the nearest line may lie across a ridge.`,
+      `No rainfall, river level, tide or inundation data is used. Nothing here maps flood extent or depth.`,
+      `The reports cover what one outlet heard on one day. Townships with no report, above all Tanintharyi, are unreported, not unaffected.`,
+      `Field status for every village in the GSM workbook is still "Not checked".`,
+    ]},
+    { h: "Sources", li: [
+      `Screening, priority grades and plotted reports: <b>Geographical Society of Myanmar (GSM)</b>, supplied archive "တနင်္သာရီ flood 9_2026".`,
+      `Field reports: <b>Dawei Watch</b>, 27 September 2026.`,
+      `Boundaries, villages, towns, wards, roads, railway, bridges, schools, health facilities, land below 5 m: <a href="https://themimu.info" target="_blank" rel="noopener">MIMU</a> GeoNode.`,
+      `Streams and basins: <a href="https://www.hydrosheds.org/products/hydrorivers" target="_blank" rel="noopener">HydroRIVERS</a> and <a href="https://www.hydrosheds.org/products/hydrobasins" target="_blank" rel="noopener">HydroBASINS</a> (Lehner &amp; Grill 2013).`,
+      `The archive's Kyainseikgyi (Kayin State) basin and stream files lie north of the study area and are not used.`,
+    ]},
+  ];
+  $("#methodBox").innerHTML = cards.map(c => `<div class="card"><h3>${c.h}</h3><ul>${c.li.map(l => `<li>${l}</li>`).join("")}</ul></div>`).join("");
+  $("#foot").innerHTML = `Built 28 September 2026 from the GSM screening archive and MIMU open data. Screening results are geographic filters for planning field checks, not a warning, forecast or damage assessment.`;
+})();
+
+})();
+</script>
